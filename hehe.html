@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loadstring Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .result-label {
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-container.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Loadstring Generator </h1>
+        <p class="subtitle">Tạo Loadstring Nhanh 💫</p>
+
+        <div class="input-group">
+            <label for="rawUrl">Nhập Raw Của bạn vào 🌟):</label>
+            <input 
+                type="text" 
+                id="rawUrl" 
+                placeholder="https://raw.githubusercontent.com/... hoặc https://raw.domain.com/..."
+            >
+            <div class="error" id="error">Vui lòng nhập URL hợp lệ!</div>
+        </div>
+
+        <button class="btn" onclick="generateLoadstring()">
+            ✨ Tạo Loadstring
+        </button>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-label">Kết quả:</div>
+            <div class="result-box">
+                <button class="copy-btn" onclick="copyToClipboard()">Sao chép</button>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateLoadstring() {
+            const input = document.getElementById('rawUrl');
+            const url = input.value.trim();
+            const errorDiv = document.getElementById('error');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultDiv = document.getElementById('result');
+
+            errorDiv.style.display = 'none';
+
+            if (!url) {
+                errorDiv.textContent = 'Vui lòng nhập URL!';
+                errorDiv.style.display = 'block';
+                resultContainer.classList.remove('show');
+                return;
+            }
+
+            if (!url.startsWith('https://')) {
+                errorDiv.textContent = 'URL phải bắt đầu với https://';
+                errorDiv.style.display = 'block';
+                resultContainer.classList.remove('show');
+                return;
+            }
+
+            if (!url.includes('raw.')) {
+                errorDiv.textContent = 'URL phải chứa "raw." (ví dụ: https://raw.githubusercontent.com/...)';
+                errorDiv.style.display = 'block';
+                resultContainer.classList.remove('show');
+                return;
+            }
+
+            const loadstringCode = `loadstring(game:HttpGet("${url}"))()`;
+            
+            resultDiv.textContent = loadstringCode;
+            resultContainer.classList.add('show');
+
+            const copyBtn = document.querySelector('.copy-btn');
+            copyBtn.textContent = 'Sao chép';
+            copyBtn.classList.remove('copied');
+        }
+
+        function copyToClipboard() {
+            const resultText = document.getElementById('result').textContent;
+            const copyBtn = document.querySelector('.copy-btn');
+
+            navigator.clipboard.writeText(resultText).then(() => {
+                copyBtn.textContent = '✓ Đã sao chép!';
+                copyBtn.classList.add('copied');
+
+                setTimeout(() => {
+                    copyBtn.textContent = 'Sao chép';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Lỗi khi sao chép:', err);
+            });
+        }
+
+        document.getElementById('rawUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateLoadstring();
+            }
+        });
+    </script>
+</body>
+</html> create_loadstring.io
